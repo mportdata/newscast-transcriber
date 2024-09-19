@@ -65,7 +65,3 @@ def download_podcast_episodes(feed_url, num_episodes=5):
             download_episode(media_url, title)
         else:
             print(f"No media found for: {title}")
-
-
-# Replace with the actual podcast RSS feed URL
-podcast_feed_url = "https://your-podcast-feed-url.com/rss"

@@ -1,4 +1,4 @@
-from modules.transcribe import Transcriber, transcribe_episode
+from modules.transcriber import Transcriber, transcribe_episode
 from modules.ingest import download_episode
 from transformers import WhisperProcessor, WhisperForConditionalGeneration
 import torch

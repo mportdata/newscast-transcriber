@@ -2,7 +2,7 @@ import apache_beam as beam
 from transformers import WhisperProcessor, WhisperForConditionalGeneration
 import torch
 from modules.ingest import get_episode_data_from_feed, download_episode
-from modules.transcribe import transcribe_episode
+from modules.transcriber import transcribe_episode
 
 
 class DownloadEpisode(beam.DoFn):
