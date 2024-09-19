@@ -2,6 +2,7 @@ import feedparser
 import requests
 import os
 from datetime import date
+from modules.types import Episode, Feed
 
 
 def get_episode_data_from_feed(feed_url, episode_limit=0):

@@ -9,7 +9,7 @@ FEED_URL = "https://feeds.libsyn.com/519643/rss"
 
 
 def test_get_episode_data_from_feed():
-    # Arrage
+    # Arrange
     feed_url = FEED_URL
     expected = {
         "The Benny the Butcher Interview with Throwing Fits": {
