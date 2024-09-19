@@ -1,15 +1,36 @@
 import feedparser
 import requests
 import os
+from datetime import date
 
 
-# Step 1: Parse the podcast RSS feed
-def parse_podcast_feed(feed_url):
-    return feedparser.parse(feed_url)
+def get_episode_data_from_feed(feed_url, episode_limit=0):
+    episode_data = {}
+    feed = feedparser.parse(feed_url)
+    episodes = [
+        episode
+        for episode in feed.entries[:]
+        if episode.title[-29:] == " Interview with Throwing Fits"
+    ]
+    if episode_limit > 0:
+        episodes = episodes[-1 * episode_limit :]
+    for episode in episodes:
+        episode_title = episode.title
+        episode_release_year = episode.published_parsed.tm_year
+        episode_release_month = episode.published_parsed.tm_mon
+        episode_release_day = episode.published_parsed.tm_mday
+        episode_release_date = date(
+            episode_release_year, episode_release_month, episode_release_day
+        )
+        episode_url = episode.enclosures[0].href
+        episode_data[episode_title] = {
+            "release_date": episode_release_date,
+            "url": episode_url,
+        }
+    return episode_data
 
 
-# Step 2: Download the podcast episode from the feed entry
-def download_episode(episode_url, title, save_dir="podcasts"):
+def download_episode(title, episode_url, save_dir="podcasts"):
     # Create the directory if it doesn't exist
     os.makedirs(save_dir, exist_ok=True)
 
@@ -31,9 +52,8 @@ def download_episode(episode_url, title, save_dir="podcasts"):
         print(f"Failed to download: {title}")
 
 
-# Step 3: Process the feed and download all episodes
 def download_podcast_episodes(feed_url, num_episodes=5):
-    feed = parse_podcast_feed(feed_url)
+    feed = feedparser.parse(feed_url)
 
     # Iterate over the entries in the feed
     for entry in feed.entries[:num_episodes]:
@@ -46,10 +66,5 @@ def download_podcast_episodes(feed_url, num_episodes=5):
             print(f"No media found for: {title}")
 
 
-# Example usage
-if __name__ == "__main__":
-    # Replace with the actual podcast RSS feed URL
-    podcast_feed_url = "https://your-podcast-feed-url.com/rss"
-
-    # Download the first 5 episodes (you can adjust the number)
-    download_podcast_episodes(podcast_feed_url, num_episodes=5)
+# Replace with the actual podcast RSS feed URL
+podcast_feed_url = "https://your-podcast-feed-url.com/rss"
