@@ -1,13 +1,12 @@
 import torch
 import librosa
 from transformers import (
-    pipeline,
     WhisperProcessor,
     WhisperForConditionalGeneration,
     AutoModelForCausalLM,
     AutoTokenizer,
 )
-import bitsandbytes as bnb
+from llama_cpp import Llama
 
 
 class Transcriber:
@@ -52,23 +51,28 @@ class Transcriber:
 
 
 class FitCheckExtractor:
-    def __init__(self, model_name="distilgpt2"):
+    def __init__(self, model_name="Qwen/Qwen2-0.5B-Instruct-GGUF"):
         # Always use CPU since no GPU is available
         self.device = "cpu"
         print(f"Using device: {self.device}")
 
         try:
-            # Load the tokenizer
-            print(f"Loading tokenizer for {model_name}...")
-            self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-
-            # Load model without quantization, for CPU
-            print("Loading model in full precision (FP32)...")
-            self.model = AutoModelForCausalLM.from_pretrained(model_name).to(
-                self.device
+            llm = Llama.from_pretrained(
+                repo_id="Qwen/Qwen2-0.5B-Instruct-GGUF",
+                filename="*q8_0.gguf",
+                verbose=False,
             )
 
-            print(f"Model loaded and moved to {self.device} successfully.")
+            output = llm(
+                "Q: Name each planet in the solar system? A: ",  # Prompt
+                max_tokens=32,  # Generate up to 32 tokens, set to None to generate up to the end of the context window
+                stop=[
+                    "Q:",
+                    "\n",
+                ],  # Stop generating just before the model would generate a new question
+                echo=True,  # Echo the prompt back in the output
+            )  # Generate a completion, can also call create_completion
+            print(output)
         except Exception as e:
             print(f"Error loading model or tokenizer: {e}")
             raise

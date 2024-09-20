@@ -4,6 +4,7 @@ from pathlib import Path
 from modules.models import Transcriber, FitCheckExtractor
 import librosa
 import math
+import numpy as np
 
 
 class Episode:
@@ -139,30 +140,26 @@ class Episode:
 
         transcription_text = self.get_transcription_text(transcriber)
 
-        # Tokenize the text and ensure the tensor is on the same device as the model
-        inputs = fit_check_extractor.tokenizer(
-            transcription_text, return_tensors="pt"
-        ).to(fit_check_extractor.device)
-
-        # Check the device of the inputs and the model to ensure they match
-        print(f"Inputs device: {inputs.input_ids.device}")
-        print(f"Model device: {next(fit_check_extractor.model.parameters()).device}")
-
-        # Generate the output using the model
-        output_ids = fit_check_extractor.model.generate(
-            inputs.input_ids,
-            max_length=50,
-            do_sample=True,  # Allows more varied text generation
-            top_p=0.95,  # Controls diversity via nucleus sampling
-            temperature=0.7,  # Controls randomness of predictions
+        transcription_tokenized = fit_check_extractor.tokenizer(
+            transcription_text, return_tensors="np"
         )
 
-        # Decode the generated token IDs into text
-        generated_text = fit_check_extractor.tokenizer.decode(
+        transcription_ids = transcription_tokenized["input_ids"]
+
+        # Run inference on the quantized model
+        print("Running inference...")
+        ort_inputs = {
+            fit_check_extractor.session.get_inputs()[0].name: transcription_ids
+        }
+        ort_outs = fit_check_extractor.session.run(None, ort_inputs)
+
+        # Decode the output
+        output_ids = np.argmax(ort_outs[0], axis=-1)
+        output_text = fit_check_extractor.tokenizer.decode(
             output_ids[0], skip_special_tokens=True
         )
 
-        return generated_text
+        return output_text
 
     def __eq__(self, other):
         if isinstance(other, Episode):
