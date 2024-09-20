@@ -1,7 +1,7 @@
 import os
 import requests
 from pathlib import Path
-from modules.models import Transcriber
+from modules.models import Transcriber, FitCheckExtractor
 import librosa
 import math
 
@@ -115,6 +115,12 @@ class Episode:
 
         print(f"Transcription of {self.filename}: 100% complete")
         return transcription.strip()
+
+    def extract_fit_check(self, fit_check_extractor: FitCheckExtractor):
+        if not self.downloaded_status():
+            self.download_episode()
+        if not self.transcribed_status():
+            self.transcribe_episode()
 
     def __eq__(self, other):
         if isinstance(other, Episode):

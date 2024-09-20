@@ -53,8 +53,23 @@ class Transcriber:
 class FitCheckExtractor:
     def __init__(self):
         # Check if a GPU is available; if not, use CPU
-        device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        print(f"Using device: {self.device}")
 
-        # Load the tokenizer and model, and move the model to the appropriate device
-        tokenizer = AutoTokenizer.from_pretrained("distilgpt2")
-        model = AutoModelForCausalLM.from_pretrained("distilgpt2").to(device)
+        try:
+            model_name = "distilgpt2"
+            # Load the tokenizer and model, and move the model to the appropriate device
+            print(f"Loading tokenizer for {model_name}...")
+            self.tokenizer = AutoTokenizer.from_pretrained(
+                "distilgpt2", clean_up_tokenization_spaces=True
+            )
+            print("Tokenizer loaded successfully.")
+
+            print(f"Loading model for {model_name}...")
+            self.model = AutoModelForCausalLM.from_pretrained(model_name).to(
+                self.device
+            )
+            print(f"Model loaded and moved to {self.device} successfully.")
+        except Exception as e:
+            print(f"Error loading model or tokenizer: {e}")
+            raise

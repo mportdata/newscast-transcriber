@@ -28,18 +28,16 @@ class TranscribeEpisode(beam.DoFn):
         self.transcriber = transcriber
 
     def process(self, episode):
-        episode_title = (
-            episode.title
-        )  # Access the title directly from the episode object
+        episode_title = episode.title
 
         if episode:
             print(f"Transcribing episode: {episode_title}")
             transcription = episode.transcribe_episode(self.transcriber)
             print(f"Finished transcribing episode: {episode_title}")
-            yield (episode_title, transcription)  # Return the transcription result
+            yield episode
         else:
             print(f"Skipping transcription for {episode_title}, no episode data.")
-            yield (episode_title, "No episode data available for transcription.")
+            yield episode
 
 
 class ExtractFitCheck(beam.DoFn):
@@ -47,10 +45,8 @@ class ExtractFitCheck(beam.DoFn):
         self.fit_check_extractor = fit_check_extractor
 
     def process(self, episode):
-        episode_title = (
-            episode.title
-        )  # Access the title directly from the episode object
-        yield (episode_title, "Test of Extact fit check step ran")
+        episode_title = episode.title
+        yield (episode_title, "Test of Extract fit check step ran")
 
 
 def run_pipeline(podcast_feed_url, episode_limit=0):
