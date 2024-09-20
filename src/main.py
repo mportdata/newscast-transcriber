@@ -1,57 +1,85 @@
 import apache_beam as beam
-from transformers import WhisperProcessor, WhisperForConditionalGeneration
-import torch
-from modules.ingest import get_episode_data_from_feed, download_episode
-from modules.transcriber import transcribe_episode
+from modules.feed import Feed
+from modules.episode import Episode
+from modules.models import Transcriber, FitCheckExtractor
 
 
 class DownloadEpisode(beam.DoFn):
-    def process(self, element):
-        episode_title, episode_info = element
+    def process(self, episode):
+        episode_title = (
+            episode.title
+        )  # Access the title directly from the episode object
+        if episode:
+            print(f"Downloading episode: {episode_title}")
 
-        if episode_info:
-            episode_url = episode_info["url"]
-            download_episode(episode_title, episode_url)
+            # Ensure download is invoked
+            episode.download_episode()
+            print(f"Finished downloading episode: {episode_title}")
+
+            # Yield the episode object back to the pipeline for transcription
+            yield episode
         else:
+            print(f"Episode data not found for {episode_title}")
             yield f"Episode data not found for {episode_title}"
 
 
 class TranscribeEpisode(beam.DoFn):
-    def __init__(self, processor, model):
-        self.processor = processor
-        self.model = model
+    def __init__(self, transcriber):
+        self.transcriber = transcriber
 
-    def process(self, element):
-        episode_title, episode_info = element  # Expecting (title, info) pair
-        audio_file_path = f"./podcasts/{episode_title}.mp3"  # Assumed file path
+    def process(self, episode):
+        episode_title = (
+            episode.title
+        )  # Access the title directly from the episode object
 
-        # Call the transcribe function with the processor and model
-        transcription = transcribe_episode(self.processor, self.model, audio_file_path)
+        if episode:
+            print(f"Transcribing episode: {episode_title}")
+            transcription = episode.transcribe_episode(self.transcriber)
+            print(f"Finished transcribing episode: {episode_title}")
+            yield (episode_title, transcription)  # Return the transcription result
+        else:
+            print(f"Skipping transcription for {episode_title}, no episode data.")
+            yield (episode_title, "No episode data available for transcription.")
 
-        yield (episode_title, transcription)  # Return the transcription result
+
+class ExtractFitCheck(beam.DoFn):
+    def __init__(self, fit_check_extractor):
+        self.fit_check_extractor = fit_check_extractor
+
+    def process(self, episode):
+        episode_title = (
+            episode.title
+        )  # Access the title directly from the episode object
+        yield (episode_title, "Test of Extact fit check step ran")
 
 
-def run_pipeline(podcast_feed_url):
-    episode_data = get_episode_data_from_feed(podcast_feed_url, 1)
+def run_pipeline(podcast_feed_url, episode_limit=0):
+    # Initialize feed and transcriber
+    print(f"Fetching episodes from feed URL: {podcast_feed_url}")
+    feed = Feed(podcast_feed_url)
+    episode_data = feed.get_interview_episodes(episode_limit=episode_limit)
+    print(f"Number of episodes fetched: {len(episode_data)}")
 
-    # Load the Whisper model and processor once, outside the DoFn
-    processor = WhisperProcessor.from_pretrained("openai/whisper-small.en")
-    model = WhisperForConditionalGeneration.from_pretrained("openai/whisper-small.en")
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    model = model.to(device)
+    transcriber = Transcriber("tiny")
+    fit_check_extractor = FitCheckExtractor()
 
+    # Define the Beam pipeline
     with beam.Pipeline() as pipeline:
         (
             pipeline
-            | "Create PCollection of Titles" >> beam.Create(list(episode_data.keys()))
-            | "Pair Titles with Data"
-            >> beam.Map(lambda title: (title, episode_data[title]))
+            | "Create PCollection of Episodes"
+            >> beam.Create(list(episode_data.values()))  # Use episode objects directly
             | "Download Episode" >> beam.ParDo(DownloadEpisode())
-            | "Transcribe Episode" >> beam.ParDo(TranscribeEpisode(processor, model))
+            | "Transcribe Episode" >> beam.ParDo(TranscribeEpisode(transcriber))
+            | "Extract Fit Check" >> beam.ParDo(ExtractFitCheck(fit_check_extractor))
             | "Print Results" >> beam.Map(print)
         )
+
+    print("Pipeline execution completed.")
 
 
 if __name__ == "__main__":
     FEED_URL = "https://feeds.libsyn.com/519643/rss"
-    run_pipeline(FEED_URL)
+    print("Starting Beam pipeline...")
+    run_pipeline(FEED_URL, 1)
+    print("Beam pipeline finished.")

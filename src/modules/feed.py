@@ -10,7 +10,6 @@ class Feed:
 
     def get_interview_episodes(self, episode_limit=0):
         episodes_dict = {}
-        # print(self.feed_response)
         episode_elements = [
             episode_element
             for episode_element in self.feed_response.entries[:]
