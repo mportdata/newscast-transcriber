@@ -116,11 +116,53 @@ class Episode:
         print(f"Transcription of {self.filename}: 100% complete")
         return transcription.strip()
 
-    def extract_fit_check(self, fit_check_extractor: FitCheckExtractor):
-        if not self.downloaded_status():
-            self.download_episode()
+    def get_transcription_text(self, transcriber: Transcriber):
         if not self.transcribed_status():
-            self.transcribe_episode()
+            self.transcribe_episode(transcriber)
+        transcription_file_path = f"transcriptions/{self.filename}.txt"
+        try:
+            # Open and read the transcription file
+            with open(transcription_file_path, "r", encoding="utf-8") as file:
+                print(f"Opening transcription file: {transcription_file_path}")
+                text = file.read()
+                print("File read successfully.")
+                return text
+        except Exception as e:
+            print(f"Error reading file {transcription_file_path}: {e}")
+            return None
+
+    def extract_fit_check(
+        self, transcriber: Transcriber, fit_check_extractor: FitCheckExtractor
+    ):
+        if not self.transcribed_status():
+            self.transcribe_episode(transcriber)
+
+        transcription_text = self.get_transcription_text(transcriber)
+
+        # Tokenize the text and ensure the tensor is on the same device as the model
+        inputs = fit_check_extractor.tokenizer(
+            transcription_text, return_tensors="pt"
+        ).to(fit_check_extractor.device)
+
+        # Check the device of the inputs and the model to ensure they match
+        print(f"Inputs device: {inputs.input_ids.device}")
+        print(f"Model device: {next(fit_check_extractor.model.parameters()).device}")
+
+        # Generate the output using the model
+        output_ids = fit_check_extractor.model.generate(
+            inputs.input_ids,
+            max_length=50,
+            do_sample=True,  # Allows more varied text generation
+            top_p=0.95,  # Controls diversity via nucleus sampling
+            temperature=0.7,  # Controls randomness of predictions
+        )
+
+        # Decode the generated token IDs into text
+        generated_text = fit_check_extractor.tokenizer.decode(
+            output_ids[0], skip_special_tokens=True
+        )
+
+        return generated_text
 
     def __eq__(self, other):
         if isinstance(other, Episode):

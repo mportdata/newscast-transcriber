@@ -7,6 +7,7 @@ from transformers import (
     AutoModelForCausalLM,
     AutoTokenizer,
 )
+import bitsandbytes as bnb
 
 
 class Transcriber:
@@ -35,7 +36,7 @@ class Transcriber:
 
         # Check if CUDA is available and assign the appropriate device
         try:
-            self.device = "cuda" if torch.cuda.is_available() else "cpu"
+            self.device = "cpu"
             print(f"Using device: {self.device}")
         except Exception as e:
             print(f"Error determining device: {e}")
@@ -51,24 +52,22 @@ class Transcriber:
 
 
 class FitCheckExtractor:
-    def __init__(self):
-        # Check if a GPU is available; if not, use CPU
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+    def __init__(self, model_name="distilgpt2"):
+        # Always use CPU since no GPU is available
+        self.device = "cpu"
         print(f"Using device: {self.device}")
 
         try:
-            model_name = "distilgpt2"
-            # Load the tokenizer and model, and move the model to the appropriate device
+            # Load the tokenizer
             print(f"Loading tokenizer for {model_name}...")
-            self.tokenizer = AutoTokenizer.from_pretrained(
-                "distilgpt2", clean_up_tokenization_spaces=True
-            )
-            print("Tokenizer loaded successfully.")
+            self.tokenizer = AutoTokenizer.from_pretrained(model_name)
 
-            print(f"Loading model for {model_name}...")
+            # Load model without quantization, for CPU
+            print("Loading model in full precision (FP32)...")
             self.model = AutoModelForCausalLM.from_pretrained(model_name).to(
                 self.device
             )
+
             print(f"Model loaded and moved to {self.device} successfully.")
         except Exception as e:
             print(f"Error loading model or tokenizer: {e}")

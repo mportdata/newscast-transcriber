@@ -1,6 +1,6 @@
 from pathlib import Path
 from modules.episode import Episode
-from modules.models import Transcriber
+from modules.models import Transcriber, FitCheckExtractor
 from datetime import date
 import pytest
 
@@ -12,6 +12,7 @@ test_episode = Episode(
 audio_file_path = Path(f"podcasts/{test_episode.filename}.mp3")
 transcript_file_path = Path(f"transcriptions/{test_episode.filename}.txt")
 transcriber = Transcriber("tiny")
+fit_check_extractor = FitCheckExtractor()
 
 
 @pytest.fixture
@@ -39,12 +40,15 @@ def test_download_episode(file_state_cleanup):
 
 
 def test_download_existing_episode(file_state_cleanup):
+    # Arrange
+    expected_response = {"status": "success", "message": "Episode already downloaded"}
+
     # Act
     test_episode.download_episode()
     response = test_episode.download_episode()
 
     # Assert
-    assert response == {"status": "success", "message": "Episode already downloaded"}
+    assert response == expected_response
 
 
 def test_download_status_downloaded(file_state_cleanup):
@@ -100,3 +104,24 @@ def test_transcribe_status_not_transcribed(file_state_cleanup):
 
     # Assert
     assert response == False
+
+
+def test_get_transcription_text(file_state_cleanup):
+    # Arrange
+    expected_transcription_text = (
+        "Where do you live? Where is Pasadena? It's in California. Is it in"
+    )
+
+    # Act
+    transcription_text = test_episode.get_transcription_text(transcriber)
+
+    # Assert
+    assert transcription_text == expected_transcription_text
+
+
+def test_extract_fit_check(file_state_cleanup):
+    # Act
+    test_episode.extract_fit_check(transcriber, fit_check_extractor)
+
+    # Assert
+    assert True
