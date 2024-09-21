@@ -1,12 +1,8 @@
-import torch
-import librosa
 from transformers import (
     WhisperProcessor,
     WhisperForConditionalGeneration,
-    AutoModelForCausalLM,
-    AutoTokenizer,
 )
-from llama_cpp import Llama
+import torch
 
 
 class Transcriber:
@@ -26,7 +22,7 @@ class Transcriber:
 
         try:
             # Load the Whisper model
-            print(f"Loading the Whisper model for conditional generation...")
+            print("Loading the Whisper model for conditional generation...")
             model = WhisperForConditionalGeneration.from_pretrained(model_name)
             print(f"Model loaded successfully for model: {model_name}")
         except Exception as e:
@@ -35,7 +31,7 @@ class Transcriber:
 
         # Check if CUDA is available and assign the appropriate device
         try:
-            self.device = "cpu"
+            self.device = "cuda" if torch.cuda.is_available() else "cpu"
             print(f"Using device: {self.device}")
         except Exception as e:
             print(f"Error determining device: {e}")
@@ -47,32 +43,4 @@ class Transcriber:
             print(f"Model successfully moved to device: {self.device}")
         except Exception as e:
             print(f"Error moving model to device {self.device}: {e}")
-            raise
-
-
-class FitCheckExtractor:
-    def __init__(self, model_name="Qwen/Qwen2-0.5B-Instruct-GGUF"):
-        # Always use CPU since no GPU is available
-        self.device = "cpu"
-        print(f"Using device: {self.device}")
-
-        try:
-            llm = Llama.from_pretrained(
-                repo_id="Qwen/Qwen2-0.5B-Instruct-GGUF",
-                filename="*q8_0.gguf",
-                verbose=False,
-            )
-
-            output = llm(
-                "Q: Name each planet in the solar system? A: ",  # Prompt
-                max_tokens=32,  # Generate up to 32 tokens, set to None to generate up to the end of the context window
-                stop=[
-                    "Q:",
-                    "\n",
-                ],  # Stop generating just before the model would generate a new question
-                echo=True,  # Echo the prompt back in the output
-            )  # Generate a completion, can also call create_completion
-            print(output)
-        except Exception as e:
-            print(f"Error loading model or tokenizer: {e}")
             raise

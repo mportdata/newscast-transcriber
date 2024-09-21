@@ -1,5 +1,4 @@
-import unittest
-from modules.models import Transcriber, FitCheckExtractor
+from modules.models import Transcriber
 
 
 def test_transcriber_init():
@@ -8,15 +7,7 @@ def test_transcriber_init():
 
     # Assert
     assert (
-        (transcriber.processor != None)
-        and (transcriber.model != None)
+        (transcriber.processor is not None)
+        and (transcriber.model is not None)
         and (transcriber.device in ["cpu", "gpu"])
     )
-
-
-def test_fit_check_extractor_init():
-    # Act
-    fit_check_extractor = FitCheckExtractor()
-
-    # Assert
-    assert fit_check_extractor != None

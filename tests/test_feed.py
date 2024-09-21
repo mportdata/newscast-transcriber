@@ -1,22 +1,40 @@
 from modules.feed import Feed
-from modules.episode import Episode
-from datetime import date
 
-FEED_URL = "https://feeds.libsyn.com/519643/rss"
+feed_url_dict = {
+    "Fox News Hourly Update": "https://feeds.megaphone.fm/FOXM2252206613",
+    "CNN Breaking News Alerts": "https://feeds.megaphone.fm/WMHY6108281879",
+    "NPR News": "https://feeds.npr.org/500005/podcast.xml",
+    "BBC Minute": "http://wsrss.bbc.co.uk/bizdev/bbcminute/bbcminute.rss",
+}
 
 
-def test_get_interview_episodes():
+def test_feed_init():
     # Arrange
-    feed = Feed(FEED_URL)
-    title = "The Benny the Butcher Interview with Throwing Fits"
-    expected = Episode(
-        title,
-        "https://dts.podtrac.com/redirect.mp3/pscrb.fm/rss/p/traffic.libsyn.com/secure/79077014-187a-41fa-8c00-1d02e52704f6/APO9016431332.mp3?dest-id=4460808",
-        date(2024, 1, 31),
-    )
+    expected_feed_url_dict = feed_url_dict
 
     # Act
-    result = feed.get_interview_episodes(episode_limit=1)[title]
+    response_feed_url_dict = {}
+    for feed_url_name in feed_url_dict:
+        feed = Feed(feed_url_name, feed_url_dict[feed_url_name])
+        response_feed_url_dict[feed.name] = feed.url
 
     # Assert
-    assert result == expected
+    assert response_feed_url_dict == expected_feed_url_dict
+
+
+def test_get_latest_episode():
+    # Arrange
+    expected_feed_url_dict = feed_url_dict
+    episode_dict = {}
+
+    # Act
+    for feed_url_name in feed_url_dict:
+        feed = Feed(feed_url_name, feed_url_dict[feed_url_name])
+        episode = feed.get_latest_episode()
+        episode_dict[feed_url_name] = episode
+
+    # Assert
+    assert all(
+        episode_dict[episode_url_name].channel_name == episode_url_name
+        for episode_url_name in expected_feed_url_dict
+    )

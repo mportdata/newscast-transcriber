@@ -1,73 +1,54 @@
 import apache_beam as beam
 from modules.feed import Feed
+from modules.models import Transcriber
 from modules.episode import Episode
-from modules.models import Transcriber, FitCheckExtractor
 
 
-class DownloadEpisode(beam.DoFn):
-    def process(self, episode):
-        episode_title = (
-            episode.title
-        )  # Access the title directly from the episode object
-        if episode:
-            print(f"Downloading episode: {episode_title}")
+class InitializeFeed(beam.DoFn):
+    def process(self, feed_tuple):
+        feed_name, feed_url = feed_tuple
+        feed = Feed(feed_name, feed_url)
+        yield feed
 
-            # Ensure download is invoked
-            episode.download_episode()
-            print(f"Finished downloading episode: {episode_title}")
 
-            # Yield the episode object back to the pipeline for transcription
-            yield episode
-        else:
-            print(f"Episode data not found for {episode_title}")
-            yield f"Episode data not found for {episode_title}"
+class GetLatestEpisode(beam.DoFn):
+    def process(self, feed: Feed):
+        episode = feed.get_latest_episode()
+        yield episode
 
 
 class TranscribeEpisode(beam.DoFn):
     def __init__(self, transcriber):
         self.transcriber = transcriber
 
-    def process(self, episode):
-        episode_title = episode.title
-
-        if episode:
-            print(f"Transcribing episode: {episode_title}")
-            transcription = episode.transcribe_episode(self.transcriber)
-            print(f"Finished transcribing episode: {episode_title}")
-            yield episode
-        else:
-            print(f"Skipping transcription for {episode_title}, no episode data.")
-            yield episode
+    def process(self, episode: Episode):
+        transcription = episode.transcribe_episode(self.transcriber)
+        yield transcription
 
 
-class ExtractFitCheck(beam.DoFn):
-    def __init__(self, fit_check_extractor):
-        self.fit_check_extractor = fit_check_extractor
+def run_pipeline(rss_feed_dictionary):
+    # Formatting the channel names with commas and 'and' before the last one
+    channel_names = list(rss_feed_dictionary.keys())
+    formatted_channel_names = (
+        ", ".join(channel_names[:-1]) + " and " + channel_names[-1]
+    )
 
-    def process(self, episode):
-        episode_title = episode.title
-        yield (episode_title, "Test of Extract fit check step ran")
+    print(f"Fetching latest episodes from {formatted_channel_names}")
 
-
-def run_pipeline(podcast_feed_url, episode_limit=0):
-    # Initialize feed and transcriber
-    print(f"Fetching episodes from feed URL: {podcast_feed_url}")
-    feed = Feed(podcast_feed_url)
-    episode_data = feed.get_interview_episodes(episode_limit=episode_limit)
-    print(f"Number of episodes fetched: {len(episode_data)}")
-
+    # Initialize the transcriber
     transcriber = Transcriber("tiny")
-    fit_check_extractor = FitCheckExtractor()
 
     # Define the Beam pipeline
     with beam.Pipeline() as pipeline:
         (
             pipeline
-            | "Create PCollection of Episodes"
-            >> beam.Create(list(episode_data.values()))  # Use episode objects directly
-            | "Download Episode" >> beam.ParDo(DownloadEpisode())
+            | "Create PCollection of Feeds"
+            >> beam.Create(
+                list(rss_feed_dictionary.items())
+            )  # Pass key-value pairs as (name, url)
+            | "Initialize Feed" >> beam.ParDo(InitializeFeed())
+            | "Download Episode" >> beam.ParDo(GetLatestEpisode())
             | "Transcribe Episode" >> beam.ParDo(TranscribeEpisode(transcriber))
-            | "Extract Fit Check" >> beam.ParDo(ExtractFitCheck(fit_check_extractor))
             | "Print Results" >> beam.Map(print)
         )
 
@@ -75,7 +56,12 @@ def run_pipeline(podcast_feed_url, episode_limit=0):
 
 
 if __name__ == "__main__":
-    FEED_URL = "https://feeds.libsyn.com/519643/rss"
+    feed_url_dict = {
+        "Fox News Hourly Update": "https://feeds.megaphone.fm/FOXM2252206613",
+        "CNN Breaking News Alerts": "https://feeds.megaphone.fm/WMHY6108281879",
+        "NPR News": "https://feeds.npr.org/500005/podcast.xml",
+        "BBC Global News Podcast": "https://podcasts.files.bbci.co.uk/p02nq0gn.rss",
+    }
     print("Starting Beam pipeline...")
-    run_pipeline(FEED_URL, 1)
+    run_pipeline(feed_url_dict)
     print("Beam pipeline finished.")
