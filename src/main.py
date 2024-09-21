@@ -47,7 +47,7 @@ def run_pipeline(rss_feed_dictionary):
                 list(rss_feed_dictionary.items())
             )  # Pass key-value pairs as (name, url)
             | "Initialize Feed" >> beam.ParDo(InitializeFeed())
-            | "Download Episode" >> beam.ParDo(GetLatestEpisode())
+            | "Get Latest Episode" >> beam.ParDo(GetLatestEpisode())
             | "Transcribe Episode" >> beam.ParDo(TranscribeEpisode(transcriber))
             | "Print Results" >> beam.Map(print)
         )
