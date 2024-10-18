@@ -1,7 +1,20 @@
 import apache_beam as beam
+from apache_beam.options.pipeline_options import PipelineOptions
+from apache_beam.options.value_provider import RuntimeValueProvider, StaticValueProvider
 from modules.feed import Feed
 from modules.models import Transcriber
 from modules.episode import Episode
+
+
+# Define custom PipelineOptions with ValueProvider
+class MyOptions(PipelineOptions):
+    @classmethod
+    def _add_argparse_args(cls, parser):
+        parser.add_value_provider_argument(
+            "--base_path",
+            type=str,
+            help="base_path for storage location",
+        )
 
 
 class InitializeFeed(beam.DoFn):

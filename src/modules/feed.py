@@ -10,7 +10,7 @@ class Feed:
         self.name = feed_name
         self.url = feed_url
 
-    def get_latest_episode(self):
+    def get_latest_episode(self, base_path: str = "."):
         # Parse the feed and handle any potential errors
         try:
             print(f"Parsing {self.name} feed: {self.url}")
@@ -35,7 +35,11 @@ class Feed:
         latest_episode_url = latest_episode_json.enclosures[0].href
 
         latest_episode = Episode(
-            self.name, latest_episode_title, latest_episode_url, latest_episode_datetime
+            self.name,
+            latest_episode_title,
+            latest_episode_url,
+            latest_episode_datetime,
+            base_path,
         )
 
         return latest_episode
