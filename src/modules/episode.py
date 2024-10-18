@@ -9,7 +9,12 @@ from datetime import datetime
 
 class Episode:
     def __init__(
-        self, channel_name: str, episode_name: str, url: str, release_datetime: datetime
+        self,
+        channel_name: str,
+        episode_name: str,
+        url: str,
+        release_datetime: datetime,
+        base_path: str = ".",
     ):
         self.channel_name = channel_name
         self.episode_name = episode_name
@@ -20,16 +25,17 @@ class Episode:
             [c if c.isalnum() else "_" for c in channel_name]
         )
         self.safe_episode_name = f"{release_datetime}-{''.join([c if c.isalnum() else '_' for c in episode_name])}"
+        self.base_path = base_path
 
     def downloaded_status(self):
         file_path = Path(
-            f"podcasts/{self.safe_channel_name}/{self.safe_episode_name}.mp3"
+            f"{self.base_path}/podcasts/{self.safe_channel_name}/{self.safe_episode_name}.mp3"
         )
         return file_path.exists()
 
     def transcribed_status(self):
         file_path = Path(
-            f"transcriptions/{self.safe_channel_name}/{self.safe_episode_name}.txt"
+            f"{self.base_path}/transcriptions/{self.safe_channel_name}/{self.safe_episode_name}.txt"
         )
         return file_path.exists()
 
@@ -38,7 +44,7 @@ class Episode:
             print(f"Already Downloaded: {self.full_name}")
             return {"status": "success", "message": "Episode already downloaded"}
 
-        save_dir = f"podcasts/{self.safe_channel_name}"
+        save_dir = f"{self.base_path}/podcasts/{self.safe_channel_name}"
         os.makedirs(save_dir, exist_ok=True)
 
         filepath_mp3 = self.safe_episode_name + ".mp3"
@@ -68,14 +74,12 @@ class Episode:
             print(f"Already Transcribed: {self.full_name}")
             return {"status": "success", "message": "Episode already transcribed"}
 
-        save_dir = f"transcriptions/{self.safe_channel_name}"
+        save_dir = f"{self.base_path}/transcriptions/{self.safe_channel_name}"
         os.makedirs(save_dir, exist_ok=True)
 
         chunk_size = 30
         sampling_rate = 16000
-        audio_file_path = (
-            f"podcasts/{self.safe_channel_name}/{self.safe_episode_name}.mp3"
-        )
+        audio_file_path = f"{self.base_path}/podcasts/{self.safe_channel_name}/{self.safe_episode_name}.mp3"
         audio, rate = librosa.load(audio_file_path, sr=sampling_rate)
         total_duration = librosa.get_duration(y=audio, sr=sampling_rate)
         transcription = ""
@@ -119,9 +123,7 @@ class Episode:
     def get_transcription_text(self, transcriber: Transcriber):
         if not self.transcribed_status():
             self.transcribe_episode(transcriber)
-        transcription_file_path = (
-            f"transcriptions/{self.safe_channel_name}/{self.safe_episode_name}.txt"
-        )
+        transcription_file_path = f"{self.base_path}/transcriptions/{self.safe_channel_name}/{self.safe_episode_name}.txt"
         try:
             # Open and read the transcription file
             with open(transcription_file_path, "r", encoding="utf-8") as file:

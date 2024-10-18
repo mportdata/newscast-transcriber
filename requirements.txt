@@ -20,6 +20,7 @@ hdfs==2.7.3
 httplib2==0.22.0
 huggingface-hub==0.25.0
 idna==3.10
+iniconfig==2.0.0
 Jinja2==3.1.4
 joblib==1.4.2
 jsonpickle==3.3.0
@@ -38,6 +39,7 @@ objsize==0.7.0
 orjson==3.10.7
 packaging==24.1
 platformdirs==4.3.6
+pluggy==1.5.0
 pooch==1.8.2
 proto-plus==1.24.0
 protobuf==4.25.5
@@ -47,6 +49,7 @@ pycparser==2.22
 pydot==1.4.2
 pymongo==4.9.1
 pyparsing==3.1.4
+pytest==8.3.3
 python-dateutil==2.9.0.post0
 pytz==2024.2
 PyYAML==6.0.2
