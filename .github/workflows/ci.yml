@@ -24,6 +24,9 @@ jobs:
         with:
           terraform_version: 1.0.0
 
+      - name: Change Directory to Terraform
+        run: cd terraform
+
       - name: Initialize Terraform
         run: terraform init
 
