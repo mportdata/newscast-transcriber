@@ -25,11 +25,9 @@ jobs:
           terraform_version: 1.0.0
 
       - name: Authenticate to Google Cloud
-        run: |
-          echo "${{ secrets.GCP_CREDENTIALS }}" | jq . > gcp-credentials.json
-          head -n 5 gcp-credentials.json  # Print the first 5 lines of the JSON for debugging
-        shell: bash
-        working-directory: terraform
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}`
 
       - name: Initialize Terraform
         run: terraform init
