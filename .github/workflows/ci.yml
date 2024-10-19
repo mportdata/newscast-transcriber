@@ -24,17 +24,22 @@ jobs:
         with:
           terraform_version: 1.0.0
 
+      - name: Authenticate to Google Cloud
+        run: |
+          echo "${{ secrets.GCP_CREDENTIALS }}" > gcp-credentials.json
+        shell: bash
+
       - name: Initialize Terraform
         run: terraform init
-        working-directory: terraform # Specify the directory containing .tf files
+        working-directory: terraform
 
       - name: Plan Terraform Changes
-        run: terraform plan -var="project_id=parallel-audio-transcriber"
-        working-directory: terraform # Specify the directory containing .tf files
+        run: terraform plan
+        working-directory: terraform
 
       - name: Apply Terraform Changes
-        run: terraform apply -auto-apply -var="project_id=parallel-audio-transcriber"
-        working-directory: terraform # Specify the directory containing .tf files
+        run: terraform apply -auto-approve
+        working-directory: terraform
 
   build:
     name: Build Docker Image

@@ -1,6 +1,7 @@
 provider "google" {
-  project = var.project_id
-  region  = "europe-west2"
+  project     = var.project_id
+  region      = "europe-west2"
+  credentials = file("gcp-credentials.json")
 }
 
 # Create a Google Cloud Storage bucket for Dataflow staging and temp files
