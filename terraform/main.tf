@@ -5,7 +5,7 @@ provider "google" {
 
 # Create a Google Cloud Storage bucket for Dataflow staging and temp files
 resource "google_storage_bucket" "dataflow_bucket" {
-  name          = "parallel-transcriber-dataflow-storage"
+  name          = "parallel-transcriber-dataflow-stage"
   location      = "europe-west2"
   force_destroy = true
 }
