@@ -24,17 +24,17 @@ jobs:
         with:
           terraform_version: 1.0.0
 
-      - name: Change Directory to Terraform
-        run: cd terraform
-
       - name: Initialize Terraform
         run: terraform init
+        working-directory: terraform # Specify the directory containing .tf files
 
       - name: Plan Terraform Changes
         run: terraform plan
+        working-directory: terraform # Specify the directory containing .tf files
 
       - name: Apply Terraform Changes
         run: terraform apply -auto-approve
+        working-directory: terraform # Specify the directory containing .tf files
 
   build:
     name: Build Docker Image
