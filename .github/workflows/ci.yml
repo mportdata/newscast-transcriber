@@ -26,7 +26,8 @@ jobs:
 
       - name: Authenticate to Google Cloud
         run: |
-          printf '%s' "${{ secrets.GCP_CREDENTIALS }}" > gcp-credentials.json
+          echo "${{ secrets.GCP_CREDENTIALS }}" | jq . > gcp-credentials.json
+          head -n 5 gcp-credentials.json  # Print the first 5 lines of the JSON for debugging
         shell: bash
         working-directory: terraform
 
