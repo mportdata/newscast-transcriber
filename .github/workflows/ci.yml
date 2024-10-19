@@ -26,7 +26,7 @@ jobs:
 
       - name: Authenticate to Google Cloud
         run: |
-          echo "${{ secrets.GCP_CREDENTIALS }}" > gcp-credentials.json
+          echo "${{ secrets.GCP_CREDENTIALS }}" > terraform/gcp-credentials.json
         shell: bash
 
       - name: Initialize Terraform
