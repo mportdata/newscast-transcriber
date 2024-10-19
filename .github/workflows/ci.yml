@@ -29,11 +29,11 @@ jobs:
         working-directory: terraform # Specify the directory containing .tf files
 
       - name: Plan Terraform Changes
-        run: terraform plan
+        run: terraform plan -var="project_id=parallel-audio-transcriber"
         working-directory: terraform # Specify the directory containing .tf files
 
       - name: Apply Terraform Changes
-        run: terraform apply -auto-approve
+        run: terraform apply -auto-apply -var="project_id=parallel-audio-transcriber"
         working-directory: terraform # Specify the directory containing .tf files
 
   build:
