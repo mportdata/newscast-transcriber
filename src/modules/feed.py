@@ -10,7 +10,7 @@ class Feed:
         self.name = feed_name
         self.url = feed_url
 
-    def get_latest_episode(self, base_path: str = "."):
+    def get_latest_episode(self):
         # Parse the feed and handle any potential errors
         try:
             print(f"Parsing {self.name} feed: {self.url}")
@@ -39,7 +39,6 @@ class Feed:
             latest_episode_title,
             latest_episode_url,
             latest_episode_datetime,
-            base_path,
         )
 
         return latest_episode
