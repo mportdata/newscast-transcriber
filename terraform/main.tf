@@ -18,13 +18,10 @@ resource "google_dataflow_job" "dataflow_job" {
   temp_gcs_location = "gs://${google_storage_bucket.dataflow_bucket.name}/temp"
   region            = "europe-west2"
 
-<<<<<<< Updated upstream
   //  parameters = {
   //    input  = "gs://your-input-data-path/input.txt"
   //    output = "gs://your-output-data-path/output.txt"
   //  }
 
-=======
->>>>>>> Stashed changes
   on_delete = "cancel" # Cancels the Dataflow job when Terraform destroys resources
 }
