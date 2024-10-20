@@ -1,0 +1,19 @@
+{
+    "name": "Parallel Transcriber Flex Template",
+    "description": "A Flex Template for transcribing audio in parallel using Apache Beam and Dataflow",
+    "parameters": {
+      "feed-url-json": {
+        "description": "JSON string containing the feed URL dictionary",
+        "defaultValue": "{}"
+      },
+      "gcs-base-path": {
+        "description": "Google Cloud Storage base path for saving output files",
+        "defaultValue": "gs://parallel-transcriber-dataflow-bucket/output"
+      }
+    },
+    "environment": {
+      "FLEX_TEMPLATE_PYTHON_PY_FILE": "src/main.py",
+      "FLEX_TEMPLATE_PYTHON_REQUIREMENTS_FILE": "requirements.txt"
+    }
+  }
+  
