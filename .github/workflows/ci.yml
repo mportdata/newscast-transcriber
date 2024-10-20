@@ -110,7 +110,7 @@ jobs:
           --project parallel-audio-transcriber \
           --image-gcr-path gcr.io/parallel-audio-transcriber/dataflow-transcriber-image:latest \
           --sdk-language "PYTHON" \
-          --flex-template-base-image "PYTHON3" \
+          --flex-template-base-image "PYTHON312" \
           --py-path "." \
           --env "FLEX_TEMPLATE_PYTHON_PY_FILE=src/main.py" \
           --env "FLEX_TEMPLATE_PYTHON_REQUIREMENTS_FILE=requirements.txt"
