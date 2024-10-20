@@ -56,10 +56,6 @@ google_cloud_options.staging_location = (
 )
 google_cloud_options.temp_location = "gs://parallel-transcriber-dataflow-bucket/temp"
 
-# Define template location only if you are creating a template
-google_cloud_options.template_location = (
-    "gs://parallel-transcriber-dataflow-bucket/templates/parallel_transcriber_template"
-)
 
 # Ensure the main session state is saved
 options.view_as(SetupOptions).save_main_session = True
