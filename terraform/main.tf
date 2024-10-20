@@ -41,24 +41,20 @@ resource "google_project_iam_member" "storage_object_admin_role" {
   member  = "serviceAccount:${google_service_account.dataflow_service_account.email}"
 }
 
-# Create a Dataflow job using the custom Docker image
-resource "google_dataflow_flex_template_job" "dataflow_job" {
+# Define the Dataflow job using google_dataflow_job
+resource "google_dataflow_job" "dataflow_job" {
   name                  = "parallel-transcriber-dataflow-job"
   project               = var.project_id
-  location              = "europe-west2"
-  container_image       = "gcr.io/${var.project_id}/dataflow-transcriber-image:latest"
+  region                = "europe-west2"
   service_account_email = google_service_account.dataflow_service_account.email
+
+  # Define the container image
+  container_spec_gcs_path = "gs://${google_storage_bucket.dataflow_bucket.name}/container_spec.json"
 
   on_delete = "cancel"
 
-  parameters = {
-    # Add any necessary parameters for your job, if applicable
-    input_param  = "value1"
-    output_param = "value2"
-  }
-
+  # Set up environment variables and configuration
   environment = {
     temp_gcs_location = "gs://${google_storage_bucket.dataflow_bucket.name}/temp"
-    # Additional environment variables if needed
   }
 }
