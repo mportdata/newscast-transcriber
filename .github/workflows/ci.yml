@@ -107,7 +107,7 @@ jobs:
       - name: "Use gcloud CLI"
         run:
           gcloud dataflow flex-template build gs://parallel-transcriber-dataflow-bucket/parallel-transcriber-template.json \
-          --image-gcr-path "gcr.io/${{ secrets.GCP_PROJECT }}/dataflow-transcriber-image:latest" \
+          --image-gcr-path "gcr.io/parallel-audio-transcriber/dataflow-transcriber-image:latest" \
           --sdk-language "PYTHON" \
           --flex-template-base-image "PYTHON3" \
           --metadata-file "metadata.json" \
