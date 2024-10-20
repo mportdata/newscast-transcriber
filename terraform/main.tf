@@ -1,3 +1,4 @@
+# Define the provider and backend as before
 provider "google" {
   project = var.project_id
   region  = "europe-west2"
@@ -10,52 +11,54 @@ terraform {
   }
 }
 
+# Create the required Google Storage Buckets and Service Accounts as before
 resource "google_storage_bucket" "cloudbuild_logs_bucket" {
   name          = "cloudbuild-logs-bucket-newscast-transcriber"
   location      = "europe-west2"
   force_destroy = true
 }
 
-# Create a Google Cloud Storage bucket for Dataflow staging and temp files
 resource "google_storage_bucket" "dataflow_bucket" {
   name          = "parallel-transcriber-dataflow-bucket"
   location      = "europe-west2"
   force_destroy = true
 }
 
-# Create a Service Account for Dataflow
 resource "google_service_account" "dataflow_service_account" {
   account_id   = "dataflow-service-account"
   display_name = "Dataflow Service Account"
 }
 
-# Grant the service account Dataflow Worker permissions
 resource "google_project_iam_member" "dataflow_worker_role" {
   project = var.project_id
   role    = "roles/dataflow.worker"
   member  = "serviceAccount:${google_service_account.dataflow_service_account.email}"
 }
 
-# Grant the service account permissions to read/write to Google Cloud Storage
 resource "google_project_iam_member" "storage_object_admin_role" {
   project = var.project_id
   role    = "roles/storage.objectAdmin"
   member  = "serviceAccount:${google_service_account.dataflow_service_account.email}"
 }
 
-# Create a Dataflow job
-#resource "google_dataflow_job" "dataflow_job" {
-#  depends_on = [
-#    google_storage_bucket.dataflow_bucket,
-#    google_service_account.dataflow_service_account,
-#    google_project_iam_member.dataflow_worker_role,
-#    google_project_iam_member.storage_object_admin_role
-#  ]
+# Create a Dataflow job using the custom Docker image
+resource "google_dataflow_flex_template_job" "dataflow_job" {
+  name                  = "parallel-transcriber-dataflow-job"
+  project               = var.project_id
+  location              = "europe-west2"
+  container_image       = "gcr.io/${var.project_id}/dataflow-transcriber-image:latest"
+  service_account_email = google_service_account.dataflow_service_account.email
 
-#  name                  = "parallel-transcriber-dataflow-job"
-#  template_gcs_path     = "gs://${google_storage_bucket.dataflow_bucket.name}/templates/parallel_transcriber_template"
-#  temp_gcs_location     = "gs://${google_storage_bucket.dataflow_bucket.name}/temp"
-#  region                = "europe-west2"
-#  service_account_email = google_service_account.dataflow_service_account.email
-#  on_delete             = "cancel"
-#}
+  on_delete = "cancel"
+
+  parameters = {
+    # Add any necessary parameters for your job, if applicable
+    input_param  = "value1"
+    output_param = "value2"
+  }
+
+  environment = {
+    temp_gcs_location = "gs://${google_storage_bucket.dataflow_bucket.name}/temp"
+    # Additional environment variables if needed
+  }
+}
