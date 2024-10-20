@@ -22,7 +22,7 @@ class CustomPipelineOptions(PipelineOptions):
         )
         parser.add_argument(
             "--gcs-base-path",
-            default="gs://parallel-transcriber-dataflow-storage/output",
+            default="gs://parallel-transcriber-dataflow-bucket/output",
             help="Google Cloud Storage base path for saving output files when running on Dataflow",
         )
         parser.add_argument(
@@ -52,13 +52,13 @@ google_cloud_options.project = "parallel-audio-transcriber"
 google_cloud_options.region = "europe-west2"
 google_cloud_options.job_name = "parallel-transcriber-dataflow-job"
 google_cloud_options.staging_location = (
-    "gs://parallel-transcriber-dataflow-storage/staging"
+    "gs://parallel-transcriber-dataflow-bucket/staging"
 )
-google_cloud_options.temp_location = "gs://parallel-transcriber-dataflow-storage/temp"
+google_cloud_options.temp_location = "gs://parallel-transcriber-dataflow-bucket/temp"
 
 # Define template location only if you are creating a template
 google_cloud_options.template_location = (
-    "gs://parallel-transcriber-dataflow-storage/templates/parallel_transcriber_template"
+    "gs://parallel-transcriber-dataflow-bucket/templates/parallel_transcriber_template"
 )
 
 # Ensure the main session state is saved
