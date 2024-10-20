@@ -109,7 +109,7 @@ jobs:
           gcloud dataflow flex-template build "gs://YOUR_BUCKET_NAME/your-template-name.json" \
           --image "gcr.io/${{ secrets.GCP_PROJECT }}/dataflow-transcriber-image:latest" \
           --sdk-language "PYTHON" \
-          --metadata-file "path/to/metadata.json" \
+          --metadata-file "metadata.json" \
           --python-file "src/main.py" \
           --requirements-file "requirements.txt"
 
