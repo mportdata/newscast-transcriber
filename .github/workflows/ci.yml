@@ -57,11 +57,11 @@ jobs:
         working-directory: terraform
 
       - name: Plan Terraform Changes
-        run: terraform plan -var="project_id=parallel-audio-transcriber"
+        run: terraform plan -var="project_id=${{ secrets.GCP_PROJECT }}"
         working-directory: terraform
 
       - name: Apply Terraform Changes
-        run: terraform apply -auto-approve -var="project_id=parallel-audio-transcriber"
+        run: terraform apply -auto-approve -var="project_id=${{ secrets.GCP_PROJECT }}"
         working-directory: terraform
 
   build:
@@ -105,7 +105,15 @@ jobs:
           version: ">= 363.0.0"
 
       - name: "Use gcloud CLI"
-        run: "gcloud info"
+        run:
+          gcloud dataflow flex-template build gs://YOUR_BUCKET_NAME/your-template-name.json \
+          --image-gcr-path "gcr.io/${{ secrets.GCP_PROJECT }}/dataflow-transcriber-image:latest" \
+          --sdk-language "PYTHON" \
+          --flex-template-base-image "PYTHON3" \
+          --metadata-file "path/to/metadata.json" \
+          --py-path "." \
+          --env "FLEX_TEMPLATE_PYTHON_PY_FILE=src/main.py" \
+          --env "FLEX_TEMPLATE_PYTHON_REQUIREMENTS_FILE=requirements.txt"
 
       - name: Set up Python
         uses: actions/setup-python@v2
