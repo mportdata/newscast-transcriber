@@ -7,8 +7,11 @@ steps:
         "gcr.io/$PROJECT_ID/dataflow-transcriber-image:latest",
         ".",
       ]
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["push", "gcr.io/$PROJECT_ID/dataflow-transcriber-image:latest"]
+
 logsBucket: "gs://cloudbuild-logs-bucket-newscast-transcriber"
 options:
   logging: GCS_ONLY
 images:
-  - "gcr.io/$PROJECT_ID/my-custom-image:latest"
+  - "gcr.io/$PROJECT_ID/dataflow-transcriber-image:latest"
