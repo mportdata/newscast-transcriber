@@ -87,6 +87,7 @@ jobs:
         run: gcloud builds submit --config cloudbuild.yaml .
 
   deploy:
+    name: Deploy Dataflow Job
     runs-on: ubuntu-latest
     #needs: build
     steps:
@@ -97,6 +98,14 @@ jobs:
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+
+      - name: "Set up Cloud SDK"
+        uses: "google-github-actions/setup-gcloud@v2"
+        with:
+          version: ">= 363.0.0"
+
+      - name: "Use gcloud CLI"
+        run: "gcloud info"
 
       - name: Set up Python
         uses: actions/setup-python@v2

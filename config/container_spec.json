@@ -1,0 +1,22 @@
+{
+    "image": "gcr.io/YOUR_PROJECT_ID/YOUR_CONTAINER_IMAGE:latest",
+    "metadata": {
+      "name": "Parallel Transcriber Dataflow Flex Template",
+      "description": "Flex template for parallel transcriber job",
+      "parameters": {
+        "feed-url-json": {
+          "description": "JSON string containing the feed URL dictionary",
+          "defaultValue": "{}"
+        },
+        "local-base-path": {
+          "description": "Local base path for saving output files",
+          "defaultValue": "./data"
+        },
+        "gcs-base-path": {
+          "description": "Google Cloud Storage base path for saving output files",
+          "defaultValue": "gs://YOUR_BUCKET_NAME/output"
+        }
+      }
+    }
+  }
+  
