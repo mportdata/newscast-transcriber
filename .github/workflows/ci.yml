@@ -105,7 +105,7 @@ jobs:
           version: "= 497.0.0"
 
       - name: "Use gcloud CLI"
-        run:
+        run: |
           gcloud dataflow flex-template build "gs://parallel-transcriber-dataflow-bucket/parallel-transcriber-template.json" \
           --project parallel-audio-transcriber \
           --image-gcr-path gcr.io/parallel-audio-transcriber/dataflow-transcriber-image:latest \
