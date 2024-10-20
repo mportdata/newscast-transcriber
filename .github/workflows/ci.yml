@@ -102,9 +102,9 @@ jobs:
 
       - name: Run Dataflow Job
         run: |
-          python src/main.py \
-          --region europe-west2 \
-          --runner DataflowRunner \
-          --project ${{ secrets.GCP_PROJECT }} \
-          --sdk_container_image gcr.io/${{ secrets.GCP_PROJECT }}/dataflow-transcriber-image:latest \
-          --sdk_location=container
+          source venv/bin/activate && python src/main.py \
+            --region europe-west2 \
+            --runner DataflowRunner \
+            --project ${{ secrets.GCP_PROJECT }} \
+            --sdk_container_image gcr.io/${{ secrets.GCP_PROJECT }}/dataflow-transcriber-image:latest \
+            --sdk_location=container
