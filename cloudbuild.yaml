@@ -1,6 +1,12 @@
 steps:
   - name: "gcr.io/cloud-builders/docker"
-    args: ["build", "-t", "gcr.io/$PROJECT_ID/my-custom-image:latest", "."]
+    args:
+      [
+        "build",
+        "-t",
+        "gcr.io/$PROJECT_ID/dataflow-transcriber-image:latest",
+        ".",
+      ]
 logsBucket: "gs://cloudbuild-logs-bucket-newscast-transcriber"
 options:
   logging: GCS_ONLY
