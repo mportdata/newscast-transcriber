@@ -3,9 +3,16 @@ provider "google" {
   region  = "europe-west2"
 }
 
+terraform {
+  backend "gcs" {
+    bucket = "terraform-state-newscast-transcriber"
+    prefix = "terraform/state"
+  }
+}
+
 # Create a Google Cloud Storage bucket for Dataflow staging and temp files
 resource "google_storage_bucket" "dataflow_bucket" {
-  name          = "parallel-transcriber-dataflow-stage"
+  name          = "parallel-transcriber-dataflow-bucket"
   location      = "europe-west2"
   force_destroy = true
 }
@@ -31,18 +38,18 @@ resource "google_project_iam_member" "storage_object_admin_role" {
 }
 
 # Create a Dataflow job
-resource "google_dataflow_job" "dataflow_job" {
-  depends_on = [
-    google_storage_bucket.dataflow_bucket,
-    google_service_account.dataflow_service_account,
-    google_project_iam_member.dataflow_worker_role,
-    google_project_iam_member.storage_object_admin_role
-  ]
+#resource "google_dataflow_job" "dataflow_job" {
+#  depends_on = [
+#    google_storage_bucket.dataflow_bucket,
+#    google_service_account.dataflow_service_account,
+#    google_project_iam_member.dataflow_worker_role,
+#    google_project_iam_member.storage_object_admin_role
+#  ]
 
-  name                  = "parallel-transcriber-dataflow-job"
-  template_gcs_path     = "gs://${google_storage_bucket.dataflow_bucket.name}/templates/parallel_transcriber_template"
-  temp_gcs_location     = "gs://${google_storage_bucket.dataflow_bucket.name}/temp"
-  region                = "europe-west2"
-  service_account_email = google_service_account.dataflow_service_account.email
-  on_delete             = "cancel"
-}
+#  name                  = "parallel-transcriber-dataflow-job"
+#  template_gcs_path     = "gs://${google_storage_bucket.dataflow_bucket.name}/templates/parallel_transcriber_template"
+#  temp_gcs_location     = "gs://${google_storage_bucket.dataflow_bucket.name}/temp"
+#  region                = "europe-west2"
+#  service_account_email = google_service_account.dataflow_service_account.email
+#  on_delete             = "cancel"
+#}
