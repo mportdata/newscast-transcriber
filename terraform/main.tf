@@ -11,7 +11,7 @@ terraform {
 }
 
 resource "google_storage_bucket" "cloudbuild_logs_bucket" {
-  name          = "cloudbuild-logs-bucket"
+  name          = "cloudbuild-logs-bucket-newscast-transcriber"
   location      = "europe-west2"
   force_destroy = true
 }
