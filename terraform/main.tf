@@ -10,6 +10,12 @@ terraform {
   }
 }
 
+resource "google_storage_bucket" "cloudbuild_logs_bucket" {
+  name          = "cloudbuild-logs-bucket"
+  location      = "europe-west2"
+  force_destroy = true
+}
+
 # Create a Google Cloud Storage bucket for Dataflow staging and temp files
 resource "google_storage_bucket" "dataflow_bucket" {
   name          = "parallel-transcriber-dataflow-bucket"
