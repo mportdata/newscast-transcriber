@@ -8,4 +8,4 @@ gcloud dataflow flex-template build "gs://parallel-transcriber-dataflow-bucket/p
   --py-path "./src" \
   --env "FLEX_TEMPLATE_PYTHON_PY_FILE=src/main.py" \
   --env "FLEX_TEMPLATE_PYTHON_REQUIREMENTS_FILE=requirements.txt"
-    #--metadata-file "metadata.json" \
+ 
