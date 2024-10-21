@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Build the Flex Template
-#cp requirements.txt src/
-
 gcloud dataflow flex-template build "gs://parallel-transcriber-dataflow-bucket/parallel-transcriber-template.json" \
   --project parallel-audio-transcriber \
   --image-gcr-path gcr.io/parallel-audio-transcriber/dataflow-transcriber-image:latest \

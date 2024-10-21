@@ -104,6 +104,10 @@ jobs:
         with:
           version: "= 497.0.0"
 
+      - name: "Upload feeds.json"
+        run: |
+          gsutil cp config/feeds.json gs://parallel-transcriber-dataflow-bucket/feeds.json
+
       #- name: "Build"
       #  run: |
       #    gcloud dataflow flex-template build "gs://parallel-transcriber-dataflow-bucket/parallel-transcriber-template.json" \
@@ -116,10 +120,10 @@ jobs:
       #    --env "FLEX_TEMPLATE_PYTHON_REQUIREMENTS_FILE=requirements.txt" \
       #    --gcs-log-dir gs://cloudbuild-logs-bucket-newscast-transcriber
 
-      - name: "Run"
-        run: |
-          gcloud dataflow flex-template run "parallel-transcriber-job" \
-          --template-file-gcs-location="gs://parallel-transcriber-dataflow-bucket/parallel-transcriber-template.json" \
-          --project="parallel-audio-transcriber" \
-          --region="europe-west2" \
-          --parameters=base_path=gs://parallel-transcriber-dataflow-bucket/output
+      #- name: "Run"
+      #  run: |
+      #    gcloud dataflow flex-template run "parallel-transcriber-job" \
+      #    --template-file-gcs-location="gs://parallel-transcriber-dataflow-bucket/parallel-transcriber-template.json" \
+      #    --project="parallel-audio-transcriber" \
+      #    --region="europe-west2" \
+      #    --parameters=base_path=gs://parallel-transcriber-dataflow-bucket/output
