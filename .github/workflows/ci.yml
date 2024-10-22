@@ -123,9 +123,14 @@ jobs:
 
       - name: "Run"
         run: |
-          gcloud dataflow flex-template run "parallel-transcriber-job" \
+          gcloud dataflow flex-template run "parallel-transcriber-job-$(date +%Y%m%d-%H%M%S)" \
             --project=parallel-audio-transcriber \
             --region=asia-east1 \
             --template-file-gcs-location=gs://parallel-transcriber-dataflow-bucket/parallel-transcriber-template.json \
             --parameters base-path=gs://parallel-transcriber-dataflow-bucket/data \
-            --parameters feed-url-file=gs://parallel-transcriber-dataflow-bucket/feeds.json
+            --parameters feed-url-file=gs://parallel-transcriber-dataflow-bucket/feeds.json \
+            --num_workers=5 \
+            --max_workers=20 \
+            --worker_machine_type=n1-standard-4 \
+            --autoscaling_algorithm=THROUGHPUT_BASED \
+            --experiments=shuffle_mode=service
