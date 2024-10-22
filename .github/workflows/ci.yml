@@ -122,9 +122,10 @@ jobs:
 
       - name: "Run"
         run: |
-          gcloud dataflow flex-template run "your-job-name" \
+          gcloud dataflow flex-template run "parallel-transcriber-job" \
             --project=parallel-audio-transcriber \
             --region=europe-west2 \
+            --zone europe-west2-a \
             --template-file-gcs-location=gs://parallel-transcriber-dataflow-bucket/parallel-transcriber-template.json \
             --parameters base-path=gs://parallel-transcriber-dataflow-bucket/data \
             --parameters feed-url-file=gs://parallel-transcriber-dataflow-bucket/feeds.json
